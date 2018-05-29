@@ -19,6 +19,7 @@ from __future__ import print_function
 import sys
 import os
 import re
+import traceback
 import time
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -55,22 +56,21 @@ def main():
 
         options = parser.parse_args()
         
-        if options.api_key == None:
-            print("[ERROR] No API key specified.")
-            sys.exit(1)
-            
-        if options.api_host == None:
-            print("[ERROR] No API host name specified.")
-            sys.exit(1)
+        if options.api_key is None:
+            options.api_key = get_api_key_from_sys()
+            if not options.api_key:
+                print("[ERROR] No API key specified. Specify API key with -a or set environment variable MBED_CLOUD_API_KEY")
+                sys.exit(1)
+                
+        if options.api_host is not None:
+            print("Using %s as the Mbed Cloud environment." % options.api_host)
         
         if options.generate_credentials:
             generate_dev_credentials(options.api_key, options.api_host)
-        
        
     except KeyboardInterrupt:
         print("\n[CTRL+c] exit")
     except Exception as exc:
-        import traceback
         traceback.print_exc(file=sys.stdout)
         print("[ERROR] %s" % str(exc))
         sys.exit(1)
@@ -96,6 +96,16 @@ def generate_dev_credentials(api_key, api_host):
     
     except Exception as exc:
         print("[ERROR] Failed to create developer credentials \n %s" % str(exc))
+        
+def get_api_key_from_sys():
+    try:
+        if os.getenv("MBED_CLOUD_API_KEY") is not None:
+            api_key = os.getenv("MBED_CLOUD_API_KEY")
+            return api_key
+    except Exception as exc:
+        traceback.print_exc(file=sys.stdout)
+        print("[ERROR] No API key found. %s" % str(exc))
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
