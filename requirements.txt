@@ -16,4 +16,3 @@ jsonschema>=2.6
 future>=0.16.0
 six>=1.11.0
 mbed-cloud-sdk>=1.2.6
--e git+https://github.com/ARMmbed/manifest-tool@169dbc2f8539ded13bc9e35bfbd65039acf564c0#egg=manifest-tool
